@@ -1,0 +1,12 @@
+^appveyor\.yml$
+^codecov\.yml$
+^README\.Rmd$
+^\.travis\.yml$
+^.*\.Rproj$
+^\.Rproj\.user$
+^CODE_OF_CONDUCT\.md$
+^extras/
+^paper\.md$
+^codemeta\.json$
+^paper\.bib$
+^LICENSE\.md$
