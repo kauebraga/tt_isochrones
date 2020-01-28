@@ -6,3 +6,4 @@
 *.obj
 .*directory
 otp/programs/otp.jar
+*.tif
