@@ -10,3 +10,6 @@ otp_dl_jar(path = "otp/programs")
 # Os arquivos de gtfs e .obj devem estar na pasta de cada cidade
 opentripplanner::otp_build_graph(otp = "otp/programs/otp.jar", memory = 3000,
                                  dir = "otp", router = "for") 
+
+opentripplanner::otp_build_graph(otp = "otp/programs/otp.jar", memory = 3000,
+                                 dir = "otp", router = "bel") 
