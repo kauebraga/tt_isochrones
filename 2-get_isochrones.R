@@ -11,6 +11,8 @@ library(sf)
 # walkSpeed = 1
 
 # function to get isocrhones based on distance
+# walk speed on meters/second
+# dist on meters
 get_isochrone <- function(fromPlace, dist, walk_speed = 3.6, ...) {
   
   # convert from meters to sec
@@ -30,15 +32,17 @@ get_isochrone <- function(fromPlace, dist, walk_speed = 3.6, ...) {
 
 # FORTALEZA -----------------------------------------------------------------------------------
 
+# run this to make sure no other instance of otp is running on the background
+otp_stop()
 
-
+# run this and wait until the message "INFO (GrizzlyServer.java:153) Grizzly server running." show up
+# may take a few minutes for a big city
 otp_setup(otp = "otp/programs/otp.jar", dir = "otp", router = "for", port = 8080, wait = FALSE)
 
-
-otp_stop()
+# register the router
 otp_for <- otp_connect(router = "for")
 
-
+# apply function
 a <- get_isochrone(otpcon = otp_for,
                    fromPlace = c(-38.566889, -3.735398),
                    mode = "WALK",
@@ -46,6 +50,7 @@ a <- get_isochrone(otpcon = otp_for,
                    walk_speed = 3.6)
 
 
+# visualize the ischrones
 library(mapdeck)
 set_token("")
 
@@ -54,7 +59,7 @@ set_token("")
 mapdeck() %>%
   add_polygon(
     data = a,
-    fill_colour = "time",
+    fill_colour = "distance",
     legend = TRUE
     
     
