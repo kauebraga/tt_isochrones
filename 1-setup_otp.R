@@ -13,3 +13,6 @@ opentripplanner::otp_build_graph(otp = "otp/programs/otp.jar", memory = 3000,
 
 opentripplanner::otp_build_graph(otp = "otp/programs/otp.jar", memory = 3000,
                                  dir = "otp", router = "bel") 
+
+opentripplanner::otp_build_graph(otp = "otp/programs/otp.jar", memory = 3500,
+                                 dir = "otp", router = "spo") 

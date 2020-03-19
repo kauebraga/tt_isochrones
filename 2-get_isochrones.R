@@ -13,6 +13,7 @@ library(sf)
 # function to get isocrhones based on distance
 # walk speed on meters/second
 # dist on meters
+
 get_isochrone <- function(fromPlace, dist, walk_speed = 3.6, ...) {
   
   # convert from meters to sec
@@ -46,7 +47,8 @@ otp_for <- otp_connect(router = "for")
 a <- get_isochrone(otpcon = otp_for,
                    fromPlace = c(-38.566889, -3.735398),
                    mode = "WALK",
-                   dist = c(1000, 2000, 3000),
+                   # dist = c(1000, 2000, 3000),
+                   dist = 200,
                    walk_speed = 3.6)
 
 
@@ -122,4 +124,46 @@ mapdeck() %>%
   )
 
 
+# SAO PAULO -----------------------------------------------------------------------------------
+
+# open data
+oi <- read_rds("data/estacoes_rmsp.rds")
+
+# run this to make sure no other instance of otp is running on the background
+otp_stop()
+
+# run this and wait until the message "INFO (GrizzlyServer.java:153) Grizzly server running." show up
+# may take a few minutes for a big city
+otp_setup(otp = "otp/programs/otp.jar", dir = "otp", router = "spo", port = 8080, wait = FALSE)
+
+# register the router
+otp_for <- otp_connect(router = "spo")
+
+# create lists of coordinates
+coords_list <- purrr::map2(as.numeric(oi$X), as.numeric(oi$Y), c)
+
+# apply isochrones to list of coordinates
+a <- lapply(coords_list, get_isochrone, 
+            dist = c(350),
+            mode = "WALK",
+            otpcon = otp_for,
+            walk_speed = 3.6)
+
+# bind output and transform to sf
+a_sf <- rbindlist(a) %>% st_sf(crs = 4326) %>% mutate(distance = as.character(distance))
+
+# vizzzzzzzzzzzz
+library(mapdeck)
+set_token("")
+set_token("pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ.XAhHAgbe0LcDqKYyqKYIIQ")
+
+
+mapdeck() %>%
+  add_polygon(
+    data = a_sf,
+    fill_colour = "distance",
+    legend = TRUE
+    
+    
+  )
   
