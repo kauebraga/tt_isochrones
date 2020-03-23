@@ -3,6 +3,7 @@ library(dplyr)
 library(opentripplanner)
 library(data.table)
 library(sf)
+library(purrr)
 
 # otpcon = otp_for
 # fromPlace = c(-38.566889, -3.735398)
@@ -13,7 +14,6 @@ library(sf)
 # function to get isocrhones based on distance
 # walk speed on meters/second
 # dist on meters
-
 get_isochrone <- function(fromPlace, dist, walk_speed = 3.6, ...) {
   
   # convert from meters to sec
@@ -143,14 +143,19 @@ otp_for <- otp_connect(router = "spo")
 coords_list <- purrr::map2(as.numeric(oi$X), as.numeric(oi$Y), c)
 
 # apply isochrones to list of coordinates
-a <- lapply(coords_list, get_isochrone, 
-            dist = c(350),
-            mode = "WALK",
-            otpcon = otp_for,
-            walk_speed = 3.6)
+get_isochrone_safe <- purrr::safely(get_isochrone)
+
+a <- purrr::map(coords_list, get_isochrone_safe, 
+                dist = c(200, 300, 400),
+                mode = "WALK",
+                otpcon = otp_for,
+                walk_speed = 3.6)
+
+# extract the first element (the sf data.frame itself)
+b <- map_depth(a, 1, function(x) x[[1]])
 
 # bind output and transform to sf
-a_sf <- rbindlist(a) %>% st_sf(crs = 4326) %>% mutate(distance = as.character(distance))
+b_sf <- rbindlist(b) %>% st_sf(crs = 4326) %>% mutate(distance = as.character(distance))
 
 # vizzzzzzzzzzzz
 library(mapdeck)
@@ -160,7 +165,7 @@ set_token("pk.eyJ1Ijoia2F1ZWJyYWdhIiwiYSI6ImNqa2JoN3VodDMxa2YzcHFxMzM2YWw1bmYifQ
 
 mapdeck() %>%
   add_polygon(
-    data = a_sf,
+    data = b_sf,
     fill_colour = "distance",
     legend = TRUE
     
