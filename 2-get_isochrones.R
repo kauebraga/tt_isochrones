@@ -143,6 +143,7 @@ otp_for <- otp_connect(router = "spo")
 coords_list <- purrr::map2(as.numeric(oi$X), as.numeric(oi$Y), c)
 
 # apply isochrones to list of coordinates
+# the function purrr::safely avoids breaking the 'map' function if something goes wrong 
 get_isochrone_safe <- purrr::safely(get_isochrone)
 
 a <- purrr::map(coords_list, get_isochrone_safe, 
@@ -156,6 +157,9 @@ b <- map_depth(a, 1, function(x) x[[1]])
 
 # bind output and transform to sf
 b_sf <- rbindlist(b) %>% st_sf(crs = 4326) %>% mutate(distance = as.character(distance))
+
+# if you want to delete the empty polygons (isochrones that weren't calculated)
+b_sf <- b_sf[!st_is_empty(b_sf),,drop=FALSE]
 
 # vizzzzzzzzzzzz
 library(mapdeck)
